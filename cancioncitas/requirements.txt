@@ -1,0 +1,7 @@
+# archivo de dependencias
+# listar todas las librerías que se van a necesitar para el proyecto
+
+# EJECUTAR EN LA TERMINAL: pip install -r requirements.txt
+
+fastapi[standard]==0.119.1
+sqlalchemy==2.0.44

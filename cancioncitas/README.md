@@ -1,0 +1,1 @@
+<!-- Archivo para la documentación del proyecto -->
