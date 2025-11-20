@@ -1,28 +1,23 @@
-from fastapi import Depends, FastAPI, HTTPException, status
-from pydantic import BaseModel, ConfigDict, field_validator
-from sqlalchemy import create_engine, Integer, String, Float, Boolean, select
-from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column, Session
+"""
+Endpints de API REST    
+"""
 
+from fastapi import Depends, HTTPException, status, APIRouter
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models import Song
+from app.schemas import SongResponse, SongCreate, SongUpdate, SongPatch
 
-    
+#Crear router para los endpoints de canciones
 
-        
+router = APIRouter(prefix="/api/songs", tags=["songs"])
 
-
-#aplicación FastAPI
-
-#Crea la instancia de la aplicación FastAPI
-app = FastAPI(title="Cancioncitas API", version="1.0.0")
-
-#endpoint raíz
-@app.get("/")
-def home():
-    return {"mensaje": "Welcome to the Cancioncitas API!"}
 
 #ENDPOINTS CRUD
 
 # GET - obtener TODAS las canciones
-@app.get("/api/songs", response_model=list[SongResponse])
+@router.get("", response_model=list[SongResponse])
 def find_all(db: Session = Depends(get_db)):
     #db.execute(): para ejecutar la consulta
     #select(Song): crea consulta SELECT * FROM songs
@@ -31,7 +26,7 @@ def find_all(db: Session = Depends(get_db)):
     return db.execute(select(Song)).scalars().all()
 
 # GET - obtener UNA canción por ID
-@app.get("/api/songs/{id}", response_model=SongResponse)
+@router.get("/{id}", response_model=SongResponse)
 def find_by_id(id: int, db: Session = Depends(get_db)):
     #buscar canción por id de la ruta con un select y devuelve el objeto 
     # o None si no existe
@@ -47,7 +42,7 @@ def find_by_id(id: int, db: Session = Depends(get_db)):
     return song
 
 # POST - crear una canción
-@app.post("/api/songs", response_model=SongResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SongResponse, status_code=status.HTTP_201_CREATED)
 
 def create(song_dto: SongCreate, db: Session = Depends(get_db)):
     
@@ -69,7 +64,7 @@ def create(song_dto: SongCreate, db: Session = Depends(get_db)):
     return song
 
 # PUT - actualizar COMPLETAMENTE una canción
-@app.put("/api/songs/{id}", response_model=SongResponse)
+@router.put("/{id}", response_model=SongResponse)
 def update_all(id: int, song_dto: SongUpdate, db: Session = Depends(get_db)):
     #buscar canción por id
     song = db.execute(
@@ -103,7 +98,7 @@ def update_all(id: int, song_dto: SongUpdate, db: Session = Depends(get_db)):
     return song
 
 # PATCH - actualizar PARCIALMENTE una canción
-@app.patch("/api/songs/{id}", response_model=SongResponse)
+@router.patch("/{id}", response_model=SongResponse)
 def update_partial(id: int, song_dto: SongPatch, db: Session = Depends(get_db)):
     song = db.execute(
         select(Song).where(Song.id == id)
@@ -125,7 +120,7 @@ def update_partial(id: int, song_dto: SongPatch, db: Session = Depends(get_db)):
     return song
 
 # DELETE - eliminar una canción
-@app.delete("/api/songs/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete(id: int, db: Session = Depends(get_db)):
     song = db.execute(
         select(Song).where(Song.id == id)
