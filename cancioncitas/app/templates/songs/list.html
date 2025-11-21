@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de canciones</title>
+</head>
+<body>
+    <h1>Listado de canciones</h1>
+
+    <table>
+        <thead>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Artista</th>
+            <th>Duración</th>
+        </thead>
+        <tbody>
+            {% for song in songs %}
+            <tr>
+                <td>{{ song.id }}</td>
+                <td>{{ song.title }}</td>
+                <td>{{ song.artist }}</td>
+                <td>{{ song.duration_seconds if song.duration_seconds else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+
+    </table>
+</body>
+</html>
