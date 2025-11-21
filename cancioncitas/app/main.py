@@ -4,6 +4,8 @@ Configuración de la aplicación FastAPI
 from fastapi import FastAPI
 from app.database import init_db
 from app.routers.api import router as api_router
+from app.routers.web import router as web_router
+
 
 
 #Crea la instancia de la aplicación FastAPI
@@ -14,3 +16,4 @@ init_db()
 
 #incluir routers de la API
 app.include_router(api_router)
+app.include_router(web_router)
