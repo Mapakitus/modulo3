@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listado de canciones</title>
+    <title>🎶 Listado de canciones</title>
 </head>
 <body>
-    <h1>Listado de canciones</h1>
+    <h1>🎶 Listado de canciones 🎶</h1>
 
     <table>
         <thead>
@@ -14,6 +14,8 @@
             <th>Título</th>
             <th>Artista</th>
             <th>Duración</th>
+            <th>Contenido Explícito</th>
+            <th>Acciones</th>
         </thead>
         <tbody>
             {% for song in songs %}
@@ -22,11 +24,10 @@
                 <td>{{ song.title }}</td>
                 <td>{{ song.artist }}</td>
                 <td>{{ song.duration_seconds if song.duration_seconds else '-' }}</td>
+                <td>{{ 'Sí' if song.explicit else 'No' }}</td>
             </tr>
             {% endfor %}
         </tbody>
-
-
     </table>
 </body>
 </html>
