@@ -10,12 +10,14 @@
 
     <table>
         <thead>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Artista</th>
-            <th>Duración</th>
-            <th>Contenido Explícito</th>
-            <th>Acciones</th>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Artista</th>
+                <th>Duración</th>
+                <th>Contenido Explícito</th>
+                <th>Acciones</th>
+            </tr>
         </thead>
         <tbody>
             {% for song in songs %}
@@ -24,7 +26,18 @@
                 <td>{{ song.title }}</td>
                 <td>{{ song.artist }}</td>
                 <td>{{ song.duration_seconds if song.duration_seconds else '-' }}</td>
-                <td>{{ 'Sí' if song.explicit else 'No' }}</td>
+                <td>
+                    {% if song.explicit is none %}
+                        -
+                    {% elif song.explicit %}
+                        Sí
+                    {% else %}
+                        No
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/songs/{{ song.id }}">Ver 👁️</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

@@ -11,3 +11,4 @@ router = APIRouter()
 
 router.include_router(home.router)
 router.include_router(songs.router)
+router.include_router(artists.router)

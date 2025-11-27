@@ -17,3 +17,10 @@ init_db()
 #incluir routers de la API
 app.include_router(api_router)
 app.include_router(web_router)
+
+"""
+# endpoint raíz
+@app.get("/")
+def home():
+    return {"mensaje": "Bienvenido a la app Cancioncitas"}
+"""
