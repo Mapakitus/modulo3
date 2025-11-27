@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.song import Song
