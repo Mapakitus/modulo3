@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de artistas</title>
+</head>
+<body>
+    <h1>Detalle de artista 🐦‍⬛🎶</h1>
+
+    <div>
+        <div>ID: <span>{{ artist.id }}</span></div>
+        <div>Nombre: <span>{{ artist.name }}</span></div>
+        <div>Fecha de nacimiento: <span>
+            {% if artist.birth_date %}
+                {{ artist.birth_date.strftime('%d/%m/%Y')  }}</p>
+            {% else %}
+                No especificada
+            {% endif %}
+        </span></div>
+    </div>
+
+    <br>
+    
+    <a href="/artists">Volver a la lista</a>
+</body>
+</html>

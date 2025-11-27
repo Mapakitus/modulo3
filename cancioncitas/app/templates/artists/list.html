@@ -13,6 +13,7 @@
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Fecha de nacimiento</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -27,6 +28,9 @@
                         -
                     {% endif %}
                 </td>
+                <td>
+                <a href="/artists/{{ artist.id }}">Ver Detalle 👁️</a>
+            </td>
             </tr>
             {% endfor %}
         </tbody>
