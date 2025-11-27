@@ -3,7 +3,7 @@ Router de páginas web
 Contienen los endpoints que renderizan HTMLs
 """
 
-from app.routers.web import home
+from app.routers.web import artists, home
 from app.routers.web import songs
 from fastapi import APIRouter
 
