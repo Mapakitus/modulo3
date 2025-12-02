@@ -113,21 +113,22 @@ def song_detail(request: Request, song_id: int, db: Session = Depends(get_db)):
         "songs/detail.html",
         {"request": request, "song": song}
     )
-    
-#mostrar formulario de edición
+
+# mostrar formulario editar
 @router.get("/{song_id}/edit", response_class=HTMLResponse)
 def show_edit_form(request: Request, song_id: int, db: Session = Depends(get_db)):
-    #obtener canción por id
-    song = db.execute(select(Song).where(song.id == song_id)).scalar_one_or_none()
+    # obtener canción por id
+    song = db.execute(select(Song).where(Song.id == song_id)).scalar_one_or_none()
     
+    # lanzar error 404 si no existe canción
     if song is None:
-        raise HTTPException(status_code=404, detail="404 - Canción no encontrada")
+        raise HTTPException(status_code=404, detail="404 - Canción  no encontrada")
     
     return templates.TemplateResponse(
         "songs/form.html",
         {"request": request, "song": song}
     )
-    
+
 # editar canción existente
 @router.post("/{song_id}/edit", response_class=HTMLResponse)
 def update_song(
@@ -152,7 +153,6 @@ def update_song(
         "explicit": explicit
     }
     
-    # validar y convertir duration_seconds
     duration_value = None
     if duration_seconds and duration_seconds.strip():
         try:
@@ -162,37 +162,33 @@ def update_song(
         except ValueError:
             errors.append("La duración debe ser un número válido")
     
-    # validar explicit
     explicit_value = None
     if explicit == "true":
         explicit_value = True
     elif explicit == "false":
         explicit_value = False
     
-    # validar campos obligatorios
     if not title or not title.strip():
         errors.append("El título es requerido")
     if not artist or not artist.strip():
         errors.append("El artista es requerido")
-        
-# si hay errores, mostrar el formulario con los errores
+    
     if errors:
         return templates.TemplateResponse(
             "songs/form.html",
             {"request": request, "song": song, "errors": errors, "form_data": form_data}
         )
-        
+    
     try:
         song.title = title.strip()
         song.artist = artist.strip()
         song.duration_seconds = duration_value
         song.explicit = explicit_value
-        
+
         db.commit()
         db.refresh(song)
         
         return RedirectResponse(url=f"/songs/{song.id}", status_code=303)
-    
     except Exception as e:
         db.rollback()
         errors.append(f"Error al actualizar la canción: {str(e)}")
