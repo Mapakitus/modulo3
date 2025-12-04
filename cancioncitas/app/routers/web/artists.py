@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from datetime import datetime
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -30,6 +31,61 @@ def show_create_form(request: Request):
         "artists/form.html",
         {"request": request, "artist": None}
     )
+
+# crear nuevo artista
+@router.post("/new", response_class=HTMLResponse)
+def create_artist(
+    request: Request,
+    name: str = Form(...),
+    birth_date: str = Form(None), #opcional
+    db: Session = Depends(get_db)
+):
+    errors = []
+    
+    # convertir birth_date de DD/MM/YYYY a datetime
+    birth_date_value = None
+    if birth_date and birth_date.strip():
+        try:
+            birth_date_value = datetime.strptime(birth_date, "%d/%m/%Y")
+        except ValueError:
+            errors.append("La fecha de nacimiento no tiene un formato válido (DD/MM/YYYY)")
+            
+    form_data = {
+        "name": name,
+        # Si ya se convirtió correctamente, lo mostramos en el formulario en el mismo formato
+        "birth_date": birth_date_value.strftime("%d/%m/%Y") if birth_date_value else birth_date
+    }
+    
+    # validar campos obligatorios
+    if not name or not name.strip():
+        errors.append("El nombre es obligatorio")
+        
+    # si hay errores, mostrar el formulario con los errores
+    if errors:
+        return templates.TemplateResponse(
+            "artists/form.html",
+            {"request": request, "artist": None, "errors": errors, "form_data": form_data}
+        )
+    
+    # crear artista
+    try:
+        artist = Artist(
+            name=name.strip(),
+            birth_date=birth_date_value       
+        )
+        db.add(artist)
+        db.commit()
+        db.refresh(artist)
+        
+        # redirigir a pantalla detalle
+        return RedirectResponse(url=f"/artists/{artist.id}", status_code=303)
+    except Exception as e:
+        db.rollback()
+        errors.append(f"Error al crear el artista: {str(e)}")
+        return templates.TemplateResponse(
+            "artists/form.html",
+            {"request": request, "artist": None, "errors": errors, "form_data": form_data}
+        )
     
 # detalle artista (http://localhost:8000/artists/5)
 @router.get("/{artist_id}", response_class=HTMLResponse)

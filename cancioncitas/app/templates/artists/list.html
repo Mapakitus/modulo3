@@ -32,7 +32,7 @@
                     <td>{{ artist.name }}</td>
                     <td>
                         {% if artist.birth_date %}
-                            {{ artist.birth_date.strftime('%Y-%m-%d') }}
+                            {{ artist.birth_date.strftime('%d/%m/%Y') }}
                         {% else %}
                             -
                         {% endif %}
