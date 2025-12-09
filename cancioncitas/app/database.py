@@ -2,10 +2,13 @@
 Configuración de la base de datos
 """
 
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
 
 # crear motor de conexión a base de datos
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
+
 engine = create_engine(
     "sqlite:///cancioncitas.db",
     echo=True,
@@ -44,6 +47,10 @@ def init_db():
     """
     from app.models import Song, Artist
     from datetime import datetime
+    from sqlalchemy import create_engine, select
+    from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
+    from app.models.concert import Concert, ConcertStatus
     
     # crear todas las tablas
     Base.metadata.create_all(engine)
@@ -68,6 +75,10 @@ def init_db():
         db.add_all(default_artists)
         db.commit()
         
+        #obtener los artistas para tener sus ids
+        artists = db.execute(select(Artist)).scalars().all()
+        artist_dict = {artist.name: artist.id for artist in artists}
+        
         # refresca los artistas para obtener su id
         for artist in default_artists:
             db.refresh(artist)
@@ -85,5 +96,51 @@ def init_db():
         # agregar las canciones
         db.add_all(default_songs)
         db.commit()
+        
+        default_concerts = [
+            Concert(
+                name="ABBA - Primera gira",
+                price=85.00,
+                capacity=50000,
+                status=ConcertStatus.SCHEDULED,
+                is_sold_out=False,
+                date_time=(2026, 6, 15, 20, 0),
+                img_url="https://placehold.co/600x400?text=ABBA+Primera+Gira",
+                artist_id=artist_dict.get("ABBA")
+            ),
+            Concert(
+                name="Amaral - Hacia lo salvaje",
+                price=5.00,
+                capacity=500000,
+                status=ConcertStatus.SCHEDULED,
+                is_sold_out=False,
+                date_time=(2026, 10, 12, 17, 30),
+                img_url="https://placehold.co/600x400?text=Amaral+Concierto",
+                artist_id=artist_dict.get("Amaral")
+            ),
+             Concert(
+                name="Metallica - Master of Puppets",
+                price=50.00,
+                capacity=200000,
+                status=ConcertStatus.COMPLETED,
+                is_sold_out=True,
+                date_time=(2026, 10, 12, 17, 30),
+                img_url="https://placehold.co/600x400?text=Amaral+Concierto",
+                artist_id=artist_dict.get("Metallica")
+            ),
+            Concert(
+                name="Muse - Supermassive black hole",
+                price=150.00,
+                capacity=3400000,
+                status=ConcertStatus.CANCELLED,
+                is_sold_out=False,
+                date_time=(2026, 11, 11, 21, 30),
+                img_url="https://placehold.co/600x400?text=Muse+Concert",
+                artist_id=artist_dict.get("Muse")
+            ),
+            
+        ]
+        
+        
     finally:
         db.close()
