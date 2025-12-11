@@ -1,11 +1,7 @@
-
-
 from pydantic import BaseModel, ConfigDict, field_validator
 from datetime import datetime
-
-from app.models.concert import ConcertStatus
-from app.schemas.artist import ArtistResponse
-
+from app.models import ConcertStatus
+from app.schemas import ArtistResponse
 
 class ConcertResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -20,7 +16,7 @@ class ConcertResponse(BaseModel):
     img_url: str | None
     artist_id: int
     artist: ArtistResponse
-    
+
 class ConcertCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
@@ -29,28 +25,29 @@ class ConcertCreate(BaseModel):
     capacity: int | None = None
     status: ConcertStatus = ConcertStatus.SCHEDULED
     is_sold_out: bool | None = False
-    datetime: datetime
+    date_time: datetime
     img_url: str | None = None
     artist_id: int
     
     @field_validator("name")
     @classmethod
     def validate_name_not_empty(cls, v: str) -> str:
-        #Verificar si nombre está vacío o sólo tiene espacios en blanco
+        # verificar si el valor está vacío o sólo tiene espacios
         if not v or not v.strip():
             raise ValueError("El nombre no puede estar vacío")
         
-        #verificar longitud máxima
+        # verificar longitud máxima
         if len(v.strip()) > 200:
             raise ValueError("El nombre no puede tener más de 200 caracteres")
-        #Retornar valor normalizado
+        
+        # retornar el valor normalizado
         return v.strip()
     
     @field_validator("price")
     @classmethod
     def validate_price_positive(cls, v: float) -> float:
         if v < 0:
-            raise ValueError("El precio tiene que ser un número positivo")
+            raise ValueError("El precio debe ser un número positivo")
         
         return v
     
@@ -61,18 +58,89 @@ class ConcertCreate(BaseModel):
             raise ValueError("La capacidad debe ser un número positivo")
         
         return v
-        
+    
     @field_validator("img_url")
     @classmethod
-    def validate_img_url_lenght(cls, v: str | None) -> str | None:
+    def validate_img_url_length(cls, v: str | None) -> str | None:
         if v is not None and len(v) > 500:
             raise ValueError("La url de la imagen no puede tener más de 500 caracteres")
+        
         return v
-
+    
     @field_validator("artist_id")
     @classmethod
     def validate_artist_id_positive(cls, v: int) -> int:
         if v < 1:
-            raise ValueError("El id tiene que ser un número positivo")
+            raise ValueError("El id del artista debe ser un número positivo")
+        
+        return v
+
+class ConcertPatch(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    name: str | None = None
+    price: float | None = None
+    capacity: int | None = None
+    status: ConcertStatus | None = None
+    is_sold_out: bool | None = None
+    date_time: datetime | None = None
+    img_url: str | None = None
+    artist_id: int | None = None
+    
+    @field_validator("name")
+    @classmethod
+    def validate_name_not_empty(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        
+        if not v or not v.strip():
+            raise ValueError("El nombre no puede estar vacío")
+        
+        if len(v.strip()) > 200:
+            raise ValueError("El nombre no puede exceder 200 caracteres")
+        
+        return v.strip()
+    
+    @field_validator("price")
+    @classmethod
+    def validate_price_positive(cls, v: float | None) -> float | None:
+        if v is None:
+            return None
+        
+        if v < 0:
+            raise ValueError("El precio debe ser un número positivo")
+        
         return v
     
+    @field_validator("capacity")
+    @classmethod
+    def validate_capacity_positive(cls, v: int | None) -> int | None:
+        if v is None:
+            return None
+        
+        if v < 0:
+            raise ValueError("La capacidad debe ser un número positivo")
+        
+        return v
+    
+    @field_validator("img_url")
+    @classmethod
+    def validate_img_url_length(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        
+        if len(v.strip()) > 500:
+            raise ValueError("La url de la imagen no puede exceder 500 caracteres")
+        
+        return v.strip()
+    
+    @field_validator("artist_id")
+    @classmethod
+    def validate_artist_id_positive(cls, v: int | None) -> int | None:
+        if v is None:
+            return None
+        
+        if v < 1:
+            raise ValueError("El id del artista debe ser un número positivo")
+        
+        return v
