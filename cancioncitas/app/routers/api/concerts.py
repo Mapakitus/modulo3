@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.models.concert import Concert
-from app.schemas.concert import ConcertCreate, ConcertResponse
+from app.schemas.concert import ConcertCreate, ConcertPatch, ConcertResponse
 
 
 router = APIRouter(prefix="/api/concerts", tags=["concerts"])
@@ -53,6 +53,48 @@ def create(concert_dto: ConcertCreate, db: Session = Depends(get_db)):
     
     return concert_with_artist
 
+#actualizar un concierto parcialmente
+@router.patch("/{id}", response_model=ConcertResponse)
+def update_partial(id: int, concert_dto: ConcertPatch, db: Session = Depends(get_db)):
+    concert = db.execute(
+        select(Concert)
+        .where(Concert.id == id)
+        .options(joinedload(Concert.artist))
+    ).scalar_one_or_none()
+
+    if not concert:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No se ha encontrado el concierto con id {id}"
+        )
+    
+    update_data = concert_dto.model_dump(exclude_unset=True)
+    
+    for field, value in update_data.items():
+        setattr(concert, field, value)
+    
+    db.commit()
+    db.refresh(concert)
+    
+    return concert
+
+#eliminar un concierto
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_by_id(id: int, db: Session = Depends(get_db)):
+    concert = db.execute(
+        select(Concert).where(Concert.id == id)
+    ).scalar_one_or_none()
+
+    if not concert:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No se ha encontrado el concierto con id {id}"
+        )
+    
+    db.delete(concert)
+    db.commit()
+    
+    return None
 
 
 
